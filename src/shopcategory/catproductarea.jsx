@@ -121,6 +121,7 @@ class CatProductArea extends Component {
             current_page : 1,
             items_per_page : 5,
             current_items : [],
+            no_of_pages : "",
             index_of_first_item:'',
             index_of_last_item:'',
             render_items : []
@@ -128,13 +129,37 @@ class CatProductArea extends Component {
        
         this.handleSubmit = this.handleSubmit.bind(this);
         this.sort = this.sort.bind(this);
+        this.next = this.next.bind(this);
     }
     handleSubmit(e){
     
         this.setState({
-            current_page: e.target.name
+            current_items : [],
+            current_page: e.target.name,
         });
-        console.log( "e.value" + e.target.name );
+        console.log( "e.value" + e.target.name  );
+        console.log("Current Page from 1 , 2, 3 btns " + this.state.current_page);
+    };
+    next = e => {
+        const pageno = e.target.name;
+        if (this.state.current_page < pageno ) {
+            this.setState({
+                current_page: parseInt(this.state.current_page) + 1
+            });
+        }
+        console.log("", parseInt(this.state.current_page) + 1);
+        console.log("no of pages " + pageno);
+        console.log("next buttton" + this.state.current_page + "id =>" + e.target.name);
+    }
+    back = e => {
+        const pageno = e.target.name;
+        if (this.state.current_page > 1){
+            this.setState({
+                current_page: this.state.current_page - 1
+            });
+        }
+        console.log("no of pages " + this.state.no_of_pages);
+        console.log("back buttton" + this.state.current_page + "id =>" + e.target.name);
     }
     sort(e){
         console.log('men them : ' + e.target.name);
@@ -152,31 +177,37 @@ class CatProductArea extends Component {
         console.log("category current selected : " + this.state.current_items);
     }
     render() {
-        let { products, current_page, render_items, current_items, items_per_page, index_of_first_item, index_of_last_item} = this.state;
+        let { products, current_page, render_items, current_items, no_of_pages, items_per_page, index_of_first_item, index_of_last_item} = this.state;
         //logic for displaying items 
         index_of_last_item = current_page * items_per_page;
         index_of_first_item = index_of_last_item - items_per_page;
         current_items = products.slice(index_of_first_item,index_of_last_item);
-
-        render_items = current_items.map((item)=>{
-            // return <li key={item.index}> {item.id} </li>
-            return(
-            <div key={item.id} id={item.id} value={item.name} class="col-lg-4 col-md-4 col-sm-6">
-                <div class="f_p_item"  >
-                    <div class="f_p_img">
-                        <img class="img-fluid" src={item.img} alt="" />
-                        <div class="p_icon">
-                            <a href="#"><i class="lnr lnr-heart"></i></a>
-                            <button class="btn btn-sm" ><i class="lnr lnr-cart"></i></button>
-                        </div>
-                    </div>
-                    <a href="#"><h4>{item.name}</h4></a>
-                    <h5>{item.price}</h5>
-                </div>
-            </div>
-            );
+        if (this.state.current_items.length === 0) {
+            render_items = current_items;
+        } else if (this.state.current_items.length > 0) {
+            render_items = this.state.current_items;
+        } else {
+            render_items = current_items;
+        }
+        // render_items = current_items.map((item)=>{
+        //     // return <li key={item.index}> {item.id} </li>
+        //     return(
+        //     <div key={item.id} id={item.id} value={item.name} class="col-lg-4 col-md-4 col-sm-6">
+        //         <div class="f_p_item"  >
+        //             <div class="f_p_img">
+        //                 <img class="img-fluid" src={item.img} alt="" />
+        //                 <div class="p_icon">
+        //                     <a href="#"><i class="lnr lnr-heart"></i></a>
+        //                     <button class="btn btn-sm" ><i class="lnr lnr-cart"></i></button>
+        //                 </div>
+        //             </div>
+        //             <a href="#"><h4>{item.name}</h4></a>
+        //             <h5>{item.price}</h5>
+        //         </div>
+        //     </div>
+        //     );
         
-        });
+        // });
         // console.log("current items : " + render_items);
         console.log("last index of item : " + index_of_last_item);
         console.log("first index of item : " + index_of_first_item);
@@ -188,7 +219,12 @@ class CatProductArea extends Component {
         for (let i = 1 ; i <= Math.ceil(products.length / items_per_page); i++){
             page_number.push(i);
         };
-        // console.log("pages_numbers : " + pages_numbers);
+        
+        no_of_pages = Math.ceil(products.length / items_per_page);
+        
+
+         
+        console.log("pages_numbers : " + no_of_pages);
         const render_page_numbers = page_number.map((number) =>{
             return (
                 <li class="page-item" key={number} id={number}>
@@ -200,11 +236,7 @@ class CatProductArea extends Component {
             );
         });
         // render_items = this.state.current_items;
-        if(this.state.current_items.length > 0){
-            render_items = this.state.current_items; 
-        }else{
-            render_items = current_items
-        }
+        
         // return (
         //     <div>
         //         <ul>
@@ -267,7 +299,11 @@ class CatProductArea extends Component {
                                     <div class="right_page ml-auto">
                                         <nav class="cat_page" aria-label="Page navigation example">
                                             <ul class="pagination">
-                                                <li class="page-item"><a class="page-link" href="#"><i class="fa fa-long-arrow-left" aria-hidden="true"></i></a></li>
+                                                <li class="page-item">
+                                                    <button class="page-link" name={no_of_pages} onClick={this.back}>
+                                                        <i class="fa fa-long-arrow-left" aria-hidden="true"></i> back
+                                                    </button>
+                                                </li>
                                                 {/* <li class="page-item active"><a class="page-link" href="#">1</a></li> */}
                                                 {/* i will add the buttons here  */}
                                                 {render_page_numbers}
@@ -275,7 +311,11 @@ class CatProductArea extends Component {
                                                 <li class="page-item"><a class="page-link" href="#">3</a></li>
                                                 <li class="page-item blank"><a class="page-link" href="#">...</a></li>
                                                 <li class="page-item"><a class="page-link" href="#">6</a></li> */}
-                                                <li class="page-item"><a class="page-link" href="#"><i class="fa fa-long-arrow-right" aria-hidden="true"></i></a></li>
+                                                <li class="page-item">
+                                                    <button class="page-link" name={no_of_pages} onClick={this.next}>
+                                                        <i class="fa fa-long-arrow-right" aria-hidden="true"></i> next
+                                                    </button>
+                                                </li>
                                             </ul>
                                         </nav>
                                     </div>
@@ -304,17 +344,17 @@ class CatProductArea extends Component {
                                    {/* //items goes here                                                            */}
                                     {render_items.map(item =>
                                        <div key={item.id} id={item.id} value={item.name} class="col-lg-4 col-md-4 col-sm-6">
-                                           <div class="f_p_item"  >
-                                               <div class="f_p_img">
-                                                   <img class="img-fluid" src={item.img} alt="" />
-                                                   <div class="p_icon">
-                                                       <a href="#"><i class="lnr lnr-heart"></i></a>
-                                                       <button class="btn btn-sm" ><i class="lnr lnr-cart"></i></button>
-                                                   </div>
-                                               </div>
-                                               <a href="#"><h4>{item.name}</h4></a>
-                                               <h5>{item.price}</h5>
-                                           </div>
+                                          <div class="f_p_item"  >
+                                                <div class="f_p_img">
+                                                    <img class="img-fluid" src={item.img} alt="" />
+                                                    <div class="p_icon">
+                                                        <a href="#"><i class="lnr lnr-heart"></i></a>
+                                                        <button class="btn btn-sm" ><i class="lnr lnr-cart"></i></button>
+                                                    </div>
+                                                </div>
+                                                <a href="#"><h4>{item.name}</h4></a>
+                                                <h5>{item.price}</h5>
+                                            </div>
                                        </div>
                                     )}   
                                 </div>
